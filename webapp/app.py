@@ -12,9 +12,11 @@ NGSPICE_CMD = os.environ.get('NGSPICE_EXECUTABLE', 'ngspice')
 
 def _verify_ngspice(cmd):
     """Return True if the given executable exists on this system."""
+
     # Allow both absolute paths and names resolved in PATH
     if os.path.isabs(cmd) or os.path.dirname(cmd):
         return os.path.exists(cmd)
+
     return shutil.which(cmd) is not None
 
 # Default example circuit
@@ -31,6 +33,11 @@ def index():
         except FileNotFoundError:
             err = (f"ngspice binary '{NGSPICE_CMD}' not found. Ensure it is installed"
                    " and in your PATH or set NGSPICE_EXECUTABLE.")
+
+
+    if not _verify_ngspice(NGSPICE_CMD):
+        raise FileNotFoundError
+
             return render_template('index.html', netlist=netlist, data=None, error=err)
         except subprocess.CalledProcessError as e:
             err = 'ngspice error: ' + (e.stderr or e.stdout)
@@ -39,14 +46,15 @@ def index():
 
 def run_ngspice(netlist_text):
     """Run ngspice in batch ascii mode and parse output."""
-    if not _verify_ngspice(NGSPICE_CMD):
-        raise FileNotFoundError
 
     with tempfile.TemporaryDirectory() as tmpdir:
         circuit_path = os.path.join(tmpdir, 'circuit.cir')
         with open(circuit_path, 'w') as f:
             f.write(netlist_text)
-        output = subprocess.run([NGSPICE_CMD, '-b', '-a', circuit_path],
+
+        output = subprocess.run(['ngspice', '-b', '-a', circuit_path],
+
+
                                 capture_output=True, text=True, check=True)
         lines = output.stdout.splitlines()
         # Data starts after header. We'll collect numeric rows with at least 4 columns

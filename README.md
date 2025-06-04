@@ -12,14 +12,7 @@ This repository contains a very early prototype of a modernised interface to LTs
    ```bash
    sudo apt-get update && sudo apt-get install -y ngspice libngspice0
    ```
-   On macOS you can use Homebrew:
-   ```bash
-   brew install ngspice
-   ```
-   On Windows download the pre-built installer from the
-   [ngspice website](http://ngspice.sourceforge.net/) and add the install
-   directory (e.g. `C:\Spice\bin`) to your `PATH`.
-   If `ngspice` is installed in a non-standard location you can
+
    set the environment variable `NGSPICE_EXECUTABLE` to the full path to
    the binary. Example:
    ```bash
@@ -28,11 +21,23 @@ This repository contains a very early prototype of a modernised interface to LTs
    # Windows command prompt
    set "NGSPICE_EXECUTABLE=C:\Spice\bin\ngspice.exe"
    ```
+
    You can verify the executable is visible to Python with:
    ```bash
    python -c "import shutil, os; print(shutil.which(os.environ.get('NGSPICE_EXECUTABLE', 'ngspice')))">
    ```
    If the above command prints nothing, your path is incorrect or `ngspice` is not installed.
+
+   ```bash
+   brew install ngspice
+   ```
+   On Windows download the pre-built installer from the
+   [ngspice website](http://ngspice.sourceforge.net/) and add the install
+   directory (e.g. `C:\Spice\bin`) to your `PATH`.
+   If `ngspice` is installed in a non-standard location you can
+   set the environment variable `NGSPICE_EXECUTABLE` to the full path
+   to the binary.
+
 2. Start the development server:
    ```bash
    python webapp/app.py
