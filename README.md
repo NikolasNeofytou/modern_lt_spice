@@ -1,6 +1,7 @@
 # modern_lt_spice
 
-This repository contains a very early prototype of a modernised interface to LTspice using a web based workflow.
+This repository contains a very early prototype of a modernised interface to LTspice using a web based workflow.  
+It now also includes a small command-line simulator implemented from scratch in pure Python.
 
 ## Usage
 
@@ -38,3 +39,22 @@ This repository contains a very early prototype of a modernised interface to LTs
    python webapp/app.py
    ```
 3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas and connect their terminals by dragging between the small dots that appear on each side. Each component now renders only the schematic symbol with a transparent background and displays its numeric value in scientific notation next to the symbol. Inline value and prefix selectors remain editable and the SPICE netlist updates automatically as you edit. Press **Run Simulation** to generate waveforms.
+
+## Command-line simulator
+
+For quick experiments you can run the standalone Python simulator that parses a minimal netlist format and solves the circuit using modified nodal analysis.
+
+```bash
+python simulator.py example.cir
+```
+
+Where `example.cir` contains lines such as:
+
+```
+V1 1 0 5
+R1 1 2 1k
+R2 2 0 2k
+.op
+```
+
+The script prints node voltages and currents through voltage sources.
