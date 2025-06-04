@@ -33,11 +33,14 @@ def index():
         except FileNotFoundError:
             err = (f"ngspice binary '{NGSPICE_CMD}' not found. Ensure it is installed"
                    " and in your PATH or set NGSPICE_EXECUTABLE.")
+<<<<<<< Updated upstream
 
 
     if not _verify_ngspice(NGSPICE_CMD):
         raise FileNotFoundError
 
+=======
+>>>>>>> Stashed changes
             return render_template('index.html', netlist=netlist, data=None, error=err)
         except subprocess.CalledProcessError as e:
             err = 'ngspice error: ' + (e.stderr or e.stdout)
