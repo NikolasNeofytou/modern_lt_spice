@@ -13,9 +13,17 @@ DEFAULT_NETLIST = """* Simple RC circuit\nV1 input 0 PULSE(0 5 0 0 0 10m 20m)\nR
 def index():
     if request.method == 'POST':
         netlist = request.form.get('netlist', '')
-        data = run_ngspice(netlist)
-        return render_template('index.html', netlist=netlist, data=json.dumps(data))
-    return render_template('index.html', netlist=DEFAULT_NETLIST, data=None)
+        try:
+            data = run_ngspice(netlist)
+            return render_template('index.html', netlist=netlist,
+                                   data=json.dumps(data), error=None)
+        except FileNotFoundError:
+            err = 'ngspice binary not found. Ensure it is installed and in your PATH.'
+            return render_template('index.html', netlist=netlist, data=None, error=err)
+        except subprocess.CalledProcessError as e:
+            err = 'ngspice error: ' + (e.stderr or e.stdout)
+            return render_template('index.html', netlist=netlist, data=None, error=err)
+    return render_template('index.html', netlist=DEFAULT_NETLIST, data=None, error=None)
 
 def run_ngspice(netlist_text):
     """Run ngspice in batch ascii mode and parse output."""
@@ -23,7 +31,8 @@ def run_ngspice(netlist_text):
         circuit_path = os.path.join(tmpdir, 'circuit.cir')
         with open(circuit_path, 'w') as f:
             f.write(netlist_text)
-        output = subprocess.run(['ngspice', '-b', '-a', circuit_path], capture_output=True, text=True)
+        output = subprocess.run(['ngspice', '-b', '-a', circuit_path],
+                                capture_output=True, text=True, check=True)
         lines = output.stdout.splitlines()
         # Data starts after header. We'll collect numeric rows with at least 4 columns
         data = []
