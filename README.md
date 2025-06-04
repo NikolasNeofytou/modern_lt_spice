@@ -37,4 +37,7 @@ This repository contains a very early prototype of a modernised interface to LTs
    ```bash
    python webapp/app.py
    ```
-3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas, connect their terminals and click **Run Simulation**. The netlist textarea will be populated automatically and the waveforms plotted.
+3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas, connect their terminals and click **Run Simulation**.
+   Components now use simple SVG symbols to resemble real parts and when dropped
+   a prompt lets you enter their value and unit prefix. The netlist textarea will
+   be populated automatically and the waveforms plotted.
