@@ -7,8 +7,14 @@ This repository contains a very early prototype of a modernised interface to LTs
 1. Install dependencies (ngspice, Python packages):
    ```bash
    pip install Flask PySpice
+   ```
+   On Linux use apt to install ngspice:
+   ```bash
    sudo apt-get update && sudo apt-get install -y ngspice libngspice0
    ```
+   On Windows download the pre-built installer from the
+   [ngspice website](http://ngspice.sourceforge.net/) and add the install
+   directory (e.g. `C:\Spice\bin`) to your `PATH`.
 2. Start the development server:
    ```bash
    python webapp/app.py

@@ -10,6 +10,9 @@
         <textarea name="netlist" rows="10" cols="60">{{ netlist }}</textarea><br>
         <button type="submit">Run Simulation</button>
     </form>
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
     {% if data %}
     <h2>Simulation Result</h2>
     <canvas id="chart"></canvas>
