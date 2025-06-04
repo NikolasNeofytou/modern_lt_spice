@@ -6,6 +6,9 @@ import json
 
 app = Flask(__name__)
 
+# Path to ngspice executable can be customised via environment variable
+NGSPICE_CMD = os.environ.get('NGSPICE_EXECUTABLE', 'ngspice')
+
 # Default example circuit
 DEFAULT_NETLIST = """* Simple RC circuit\nV1 input 0 PULSE(0 5 0 0 0 10m 20m)\nR1 input output 1k\nC1 output 0 1u\n.tran 1m 20m\n.print tran v(input) v(output)\n.end"""
 
@@ -18,7 +21,9 @@ def index():
             return render_template('index.html', netlist=netlist,
                                    data=json.dumps(data), error=None)
         except FileNotFoundError:
+
             err = 'ngspice binary not found. Ensure it is installed and in your PATH.'
+
             return render_template('index.html', netlist=netlist, data=None, error=err)
         except subprocess.CalledProcessError as e:
             err = 'ngspice error: ' + (e.stderr or e.stdout)
@@ -31,7 +36,9 @@ def run_ngspice(netlist_text):
         circuit_path = os.path.join(tmpdir, 'circuit.cir')
         with open(circuit_path, 'w') as f:
             f.write(netlist_text)
+
         output = subprocess.run(['ngspice', '-b', '-a', circuit_path],
+
                                 capture_output=True, text=True, check=True)
         lines = output.stdout.splitlines()
         # Data starts after header. We'll collect numeric rows with at least 4 columns
