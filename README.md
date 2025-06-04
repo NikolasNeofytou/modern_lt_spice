@@ -12,8 +12,14 @@ This repository contains a very early prototype of a modernised interface to LTs
    ```bash
    sudo apt-get update && sudo apt-get install -y ngspice libngspice0
    ```
-
-   On macOS you can use Homebrew:
+   set the environment variable `NGSPICE_EXECUTABLE` to the full path to
+   the binary. Example:
+   ```bash
+   # Linux / macOS
+   export NGSPICE_EXECUTABLE=/opt/ngspice/bin/ngspice
+   # Windows command prompt
+   set "NGSPICE_EXECUTABLE=C:\Spice\bin\ngspice.exe"
+   ```
    ```bash
    brew install ngspice
    ```

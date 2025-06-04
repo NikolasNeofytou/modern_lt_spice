@@ -3,11 +3,16 @@ import tempfile
 import subprocess
 import os
 import json
+import shutil
 
 app = Flask(__name__)
 
 # Path to ngspice executable can be customised via environment variable
 NGSPICE_CMD = os.environ.get('NGSPICE_EXECUTABLE', 'ngspice')
+
+def _verify_ngspice(cmd):
+    """Return True if the given executable exists on this system."""
+    return shutil.which(cmd) is not None
 
 # Default example circuit
 DEFAULT_NETLIST = """* Simple RC circuit\nV1 input 0 PULSE(0 5 0 0 0 10m 20m)\nR1 input output 1k\nC1 output 0 1u\n.tran 1m 20m\n.print tran v(input) v(output)\n.end"""
@@ -21,8 +26,11 @@ def index():
             return render_template('index.html', netlist=netlist,
                                    data=json.dumps(data), error=None)
         except FileNotFoundError:
+            err = (f"ngspice binary '{NGSPICE_CMD}' not found. Ensure it is installed"
+                   " and in your PATH or set NGSPICE_EXECUTABLE.")
 
-            err = 'ngspice binary not found. Ensure it is installed and in your PATH.'
+    if not _verify_ngspice(NGSPICE_CMD):
+        raise FileNotFoundError
 
             return render_template('index.html', netlist=netlist, data=None, error=err)
         except subprocess.CalledProcessError as e:
