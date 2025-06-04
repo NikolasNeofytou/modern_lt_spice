@@ -21,8 +21,9 @@ def index():
             return render_template('index.html', netlist=netlist,
                                    data=json.dumps(data), error=None)
         except FileNotFoundError:
-            err = ('ngspice binary not found. Ensure it is installed and in your '
-                   'PATH or set NGSPICE_EXECUTABLE.')
+
+            err = 'ngspice binary not found. Ensure it is installed and in your PATH.'
+
             return render_template('index.html', netlist=netlist, data=None, error=err)
         except subprocess.CalledProcessError as e:
             err = 'ngspice error: ' + (e.stderr or e.stdout)
@@ -35,7 +36,9 @@ def run_ngspice(netlist_text):
         circuit_path = os.path.join(tmpdir, 'circuit.cir')
         with open(circuit_path, 'w') as f:
             f.write(netlist_text)
-        output = subprocess.run([NGSPICE_CMD, '-b', '-a', circuit_path],
+
+        output = subprocess.run(['ngspice', '-b', '-a', circuit_path],
+
                                 capture_output=True, text=True, check=True)
         lines = output.stdout.splitlines()
         # Data starts after header. We'll collect numeric rows with at least 4 columns

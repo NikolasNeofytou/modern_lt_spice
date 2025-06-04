@@ -12,6 +12,7 @@ This repository contains a very early prototype of a modernised interface to LTs
    ```bash
    sudo apt-get update && sudo apt-get install -y ngspice libngspice0
    ```
+
    On macOS you can use Homebrew:
    ```bash
    brew install ngspice
@@ -22,6 +23,7 @@ This repository contains a very early prototype of a modernised interface to LTs
    If `ngspice` is installed in a non-standard location you can
    set the environment variable `NGSPICE_EXECUTABLE` to the full path
    to the binary.
+
 2. Start the development server:
    ```bash
    python webapp/app.py
