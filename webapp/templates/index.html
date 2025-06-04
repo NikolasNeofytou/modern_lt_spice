@@ -1,0 +1,38 @@
+<!doctype html>
+<html>
+<head>
+    <title>Modern LTspice Prototype</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <h1>Modern LTspice Prototype</h1>
+    <form method="post">
+        <textarea name="netlist" rows="10" cols="60">{{ netlist }}</textarea><br>
+        <button type="submit">Run Simulation</button>
+    </form>
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+    {% if data %}
+    <h2>Simulation Result</h2>
+    <canvas id="chart"></canvas>
+    <script>
+        const data = {{ data|safe }};
+        const times = data.map(row => row[0]);
+        const series1 = data.map(row => row[1]);
+        const series2 = data.map(row => row[2]);
+        new Chart(document.getElementById('chart'), {
+            type: 'line',
+            data: {
+                labels: times,
+                datasets: [
+                    {label: 'V(input)', data: series1, borderColor: 'red', fill: false},
+                    {label: 'V(output)', data: series2, borderColor: 'blue', fill: false}
+                ]
+            },
+            options: { scales: { x: { title: { display: true, text: 'Time (s)' } }, y: { title: { display: true, text: 'Voltage (V)' } } } }
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
