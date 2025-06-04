@@ -38,7 +38,11 @@ It now also includes a small command-line simulator implemented from scratch in 
    ```bash
    python webapp/app.py
    ```
-3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas and connect their terminals by dragging between the small dots that appear on each side. Each component now renders only the schematic symbol with a transparent background and displays its numeric value in scientific notation next to the symbol. Inline value and prefix selectors remain editable and the SPICE netlist updates automatically as you edit. Press **Run Simulation** to generate waveforms.
+3. Open `http://localhost:5000` in a browser. Components can be dragged or simply clicked in the palette to add them to the canvas. Connect terminals by dragging between the small dots that appear. Values can be edited inline and the SPICE netlist updates automatically.
+   The interface now runs the simulation in the background every few seconds and
+   shows an error message if the circuit fails to solve. Repeated errors will
+   trigger a popup so you can spot logic problems quickly. Press **Run
+   Simulation** at any time to refresh the graph manually.
 
 ## Command-line simulator
 

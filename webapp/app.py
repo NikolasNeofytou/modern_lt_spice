@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, jsonify
 import tempfile
 import subprocess
 import os
@@ -36,6 +36,22 @@ def index():
             err = 'ngspice error: ' + (e.stderr or e.stdout)
             return render_template('index.html', netlist=netlist, data=None, error=err)
     return render_template('index.html', netlist=DEFAULT_NETLIST, data=None, error=None)
+
+
+@app.route('/run', methods=['POST'])
+def run():
+    """AJAX endpoint: run simulation and return JSON."""
+    netlist = request.form.get('netlist', '')
+    try:
+        data = run_ngspice(netlist)
+        return jsonify({'data': data})
+    except FileNotFoundError:
+        err = (f"ngspice binary '{NGSPICE_CMD}' not found. Ensure it is installed"
+               " and in your PATH or set NGSPICE_EXECUTABLE.")
+        return jsonify({'error': err})
+    except subprocess.CalledProcessError as e:
+        err = 'ngspice error: ' + (e.stderr or e.stdout)
+        return jsonify({'error': err})
 
 def run_ngspice(netlist_text):
     """Run ngspice in batch ascii mode and parse output."""

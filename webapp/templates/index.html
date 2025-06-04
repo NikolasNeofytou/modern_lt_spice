@@ -5,15 +5,17 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsPlumb/2.15.6/js/jsplumb.min.js"></script>
     <style>
-        body{font-family:sans-serif;}
-        #palette{border:1px solid #ccc;padding:10px;width:120px;float:left;}
-        #palette .item{padding:4px;margin:4px;border:1px solid #888;cursor:move;background:#eee;}
-        #canvas{border:1px solid #ccc;height:300px;margin-left:140px;position:relative;}
+        body{font-family:sans-serif;background:#f2f7fb;}
+        #palette{border:1px solid #ccc;padding:10px;width:140px;float:left;background:#fff;border-radius:4px;}
+        #palette .item{padding:6px;margin:4px;border:1px solid #888;cursor:pointer;background:#dfe9ff;border-radius:3px;text-align:center;}
+        #palette .item:hover{background:#c2d7ff;}
+        #canvas{border:1px solid #ccc;height:360px;margin-left:160px;position:relative;background:#ffffff;border-radius:4px;}
         .component{position:absolute;text-align:center;font-size:12px;}
         .component input{width:40px;font-size:12px;}
         .component select{font-size:12px;}
-        .component .value{font-size:10px;}
-        #netlist{width:100%;}
+        .component .value{font-size:10px;color:#555;}
+        #netlist{width:100%;background:#f7f7f7;border:1px solid #ccc;border-radius:4px;}
+        #errorMsg{color:red;}
     </style>
 </head>
 <body>
@@ -25,17 +27,13 @@
         <div class="item" data-type="GND" draggable="true">Ground</div>
     </div>
     <div id="canvas"></div>
-    <form method="post" id="form">
+    <form id="form" onsubmit="runSimulation(); return false;">
         <textarea name="netlist" id="netlist" rows="10" cols="60">{{ netlist }}</textarea><br>
-        <button type="submit" onclick="updateNetlist()">Run Simulation</button>
+        <button type="submit">Run Simulation</button>
     </form>
-    {% if error %}
-    <p style="color:red;">{{ error }}</p>
-    {% endif %}
-    {% if data %}
-    <h2>Simulation Result</h2>
-    <canvas id="chart"></canvas>
-    {% endif %}
+    <p id="errorMsg">{% if error %}{{ error }}{% endif %}</p>
+    <h2 id="chartTitle" style="display:none;">Simulation Result</h2>
+    <canvas id="chart" style="display:none;"></canvas>
 
 <script>
 const instance = jsPlumb.getInstance({Container:"canvas"});
@@ -100,6 +98,9 @@ document.querySelectorAll('#palette .item').forEach(el=>{
     el.addEventListener('dragstart',e=>{
         e.dataTransfer.setData('type',el.dataset.type);
     });
+    el.addEventListener('click',e=>{
+        addComponent(el.dataset.type,20,20);
+    });
 });
 
 document.getElementById('canvas').addEventListener('dragover',e=>e.preventDefault());
@@ -152,19 +153,40 @@ function updateNetlist(){
     lines.push('.end');
     document.getElementById('netlist').value=lines.join('\n');
 }
+let chart=null;
+let lastError=null;
+let errorCount=0;
+function renderChart(data){
+    const times=data.map(r=>r[0]);
+    const s1=data.map(r=>r[1]);
+    const s2=data[0].length>2?data.map(r=>r[2]):[];
+    const ctx=document.getElementById('chart');
+    document.getElementById('chart').style.display='block';
+    document.getElementById('chartTitle').style.display='block';
+    if(chart){chart.destroy();}
+    chart=new Chart(ctx,{type:'line',data:{labels:times,datasets:[{label:'V(node1)',data:s1,borderColor:'red',fill:false},{label:'V(node2)',data:s2,borderColor:'blue',fill:false}]},options:{scales:{x:{title:{display:true,text:'Time (s)'}},y:{title:{display:true,text:'Voltage (V)'}}}}});
+}
+
+function runSimulation(){
+    updateNetlist();
+    const form=new FormData();
+    form.append('netlist',document.getElementById('netlist').value);
+    fetch('/run',{method:'POST',body:form}).then(r=>r.json()).then(res=>{
+        if(res.error){
+            document.getElementById('errorMsg').textContent=res.error;
+            if(lastError===res.error){
+                errorCount++;
+                if(errorCount>=2) alert('Repeated error: '+res.error);
+            }else{lastError=res.error;errorCount=1;}
+        }else{
+            document.getElementById('errorMsg').textContent='';
+            lastError=null;errorCount=0;
+            renderChart(res.data);
+        }
+    });
+}
+
+setInterval(runSimulation,5000);
 </script>
-{% if data %}
-<script>
-const data={{ data|safe }};
-const times=data.map(r=>r[0]);
-const s1=data.map(r=>r[1]);
-const s2=data[0].length>2?data.map(r=>r[2]):[];
-new Chart(document.getElementById('chart'),{
-    type:'line',
-    data:{labels:times,datasets:[{label:'V(node1)',data:s1,borderColor:'red',fill:false},{label:'V(node2)',data:s2,borderColor:'blue',fill:false}]},
-    options:{scales:{x:{title:{display:true,text:'Time (s)'}},y:{title:{display:true,text:'Voltage (V)'}}}}
-});
-</script>
-{% endif %}
 </body>
 </html>
