@@ -37,4 +37,4 @@ This repository contains a very early prototype of a modernised interface to LTs
    ```bash
    python webapp/app.py
    ```
-3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas and connect their terminals. Each component shows an inline field for the numeric value and a drop-down for the prefix. The displayed SPICE netlist updates automatically as you edit and the waveforms are plotted when you press **Run Simulation**.
+3. Open `http://localhost:5000` in a browser. Drag components from the palette onto the canvas and connect their terminals by dragging between the small dots that appear on each side. Each component uses an SVG symbol that closely resembles the real schematic symbol. Inline value fields and prefix dropdowns are provided, the SPICE netlist updates automatically as you edit, and the waveforms are plotted when you press **Run Simulation**.
