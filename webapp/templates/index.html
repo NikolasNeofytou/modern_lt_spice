@@ -9,9 +9,10 @@
         #palette{border:1px solid #ccc;padding:10px;width:120px;float:left;}
         #palette .item{padding:4px;margin:4px;border:1px solid #888;cursor:move;background:#eee;}
         #canvas{border:1px solid #ccc;height:300px;margin-left:140px;position:relative;}
-        .component{position:absolute;padding:2px 4px;border:1px solid #666;background:#f8f8f8;width:80px;text-align:center;font-size:12px;}
-        .component input{width:32px;font-size:12px;}
+        .component{position:absolute;text-align:center;font-size:12px;}
+        .component input{width:40px;font-size:12px;}
         .component select{font-size:12px;}
+        .component .value{font-size:10px;}
         #netlist{width:100%;}
     </style>
 </head>
@@ -80,7 +81,7 @@ function addComponent(type,x,y){
     const prefixDefault=type==='V'?'':'k';
     let prefOptions='';
     prefixOpts.forEach(p=>{prefOptions+=`<option value="${p}" ${p===prefixDefault?'selected':''}>${p}</option>`});
-    d.innerHTML=`<div>${id}</div>${shapes[type]}<div><input class="val" value="${valueDefault}"> <select class="pref">${prefOptions}</select></div>`;
+    d.innerHTML=`<div class="label">${id}</div>${shapes[type]}<div class="inputs"><input class="val" value="${valueDefault}"> <select class="pref">${prefOptions}</select></div><div class="value"></div>`;
     d.style.left=x+'px';
     d.style.top=y+'px';
     document.getElementById('canvas').appendChild(d);
@@ -129,6 +130,7 @@ function updateNetlist(){
         if(document.getElementById(comp).dataset.type==='GND')nodeMap[root]=0;
     });
     allE.forEach(ep=>{const r=find(ep);if(nodeMap[r]==null)nodeMap[r]=next++;});
+    const prefixPowers={p:-12,n:-9,u:-6,m:-3,'':0,k:3,M:6,G:9};
     const lines=[];
     document.querySelectorAll('.component').forEach(div=>{
         const t=div.dataset.type,id=div.id;
@@ -137,9 +139,12 @@ function updateNetlist(){
         const n2=nodeMap[find(id+'-b')];
         const val=div.querySelector('input.val').value||'1';
         const pref=div.querySelector('select.pref').value||'';
-        if(t==='R')lines.push(`${id} ${n1} ${n2} ${val}${pref}`);
-        if(t==='C')lines.push(`${id} ${n1} ${n2} ${val}${pref}`);
-        if(t==='V')lines.push(`${id} ${n1} ${n2} DC ${val}${pref}`);
+        const num=parseFloat(val)*Math.pow(10,prefixPowers[pref]||0);
+        const sci=num.toExponential();
+        div.querySelector('.value').textContent=sci;
+        if(t==='R')lines.push(`${id} ${n1} ${n2} ${sci}`);
+        if(t==='C')lines.push(`${id} ${n1} ${n2} ${sci}`);
+        if(t==='V')lines.push(`${id} ${n1} ${n2} DC ${sci}`);
     });
     lines.push('.tran 1m 20m');
     const nodes=Object.values(nodeMap).filter(n=>n!==0);
